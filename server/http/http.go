@@ -1,0 +1,21 @@
+package http
+
+import (
+	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/naelchris/covid19/server/http/class"
+)
+
+func ConfigureMuxRouter() *mux.Router {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+		rw.Write([]byte("hello Backend"))
+	}).Methods("GET")
+
+	//ROUTE
+	router.HandleFunc("/class", class.AddClassHandler).Methods("POST")
+
+	return router
+}
