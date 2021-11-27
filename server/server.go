@@ -29,10 +29,10 @@ var (
 
 var (
 	//domain
-	ClassDomain coviddomain.Domain
+	CovidDomain coviddomain.Domain
 
 	//usecase
-	ClassUsecase *covidusecase.CovidUsecase
+	CovidUsecase *covidusecase.CovidUsecase
 )
 
 func InitServer() {
@@ -63,7 +63,7 @@ func InitServer() {
 	CovidDomain = coviddomain.InitDomain(db)
 
 	//init usecase
-	ClassUsecase = covidusecase.NewCovidUsecase(CovidDomain)
+	CovidUsecase = covidusecase.NewCovidUsecase(CovidDomain)
 }
 
 func Server(cfg ServerConfig, router *mux.Router) {

@@ -5,7 +5,7 @@ const (
 		SELECT 
 			*
 		FROM 
-			report
+			covid19_data
 		LIMIT $1
 		OFFSET $2
 	`
@@ -19,22 +19,25 @@ const (
 			recovered,
 			active
 		FROM
-			record
+			covid19_data
 		WHERE 
 			id = $1
 	`
 
 	addCaseQuery = `
-		INSERT INTO report( 
+		INSERT INTO covid19_data( 
 			country,   
-			country_code,
+			countrycode,
 			province, 
+			city,
+			citycode,
 			lat,
 			lon,
 			confirmed, 
 			deaths, 
 			recovered,  
-			active
+			active,
+			date
 		) VALUES (
 			$1,
 			$2,
@@ -44,13 +47,16 @@ const (
 			$6,
 			$7,
 			$8,
-			$9
-		) returning id
+			$9,
+			$10,
+			$11,
+			$12
+		) returning *
 	`
 
 	updateCaseQuery = `
 		UPDATE
-			report
+			covid19_data
 		SET
 			%s
 		WHERE

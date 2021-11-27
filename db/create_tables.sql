@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS covid19_data(
-    ID              UUID PRIMARY KEY UNIQUE NOT NULL,
+    ID              bigserial PRIMARY KEY,
     Country         VARCHAR(255) NOT NULL,
     CountryCode     VARCHAR(255) NOT NULL,
     Province        VARCHAR(255) NOT NULL,
