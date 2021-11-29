@@ -16,7 +16,7 @@ func (s storage) AddCases(ctx context.Context, data Cases) (Cases, error) {
 	//prepare
 	qr, err := s.CasesDB.Prepare(addCaseQuery)
 	if err != nil {
-		log.Fatalln("[ClassRepository][ResourceDB][addClass] prepare failed err, ", err.Error())
+		log.Println("[ClassRepository][ResourceDB][addClass] prepare failed err, ", err.Error())
 		return resp, err
 	}
 
@@ -36,7 +36,7 @@ func (s storage) AddCases(ctx context.Context, data Cases) (Cases, error) {
 	).Scan(&resp.ID, &resp.Country, &resp.CountryCode, &resp.Province, &resp.City, &resp.CityCode,
 		&resp.Lat, &resp.Lon, &resp.Confirmed, &resp.Deaths, &resp.Recovered, &resp.Active, &resp.Date)
 	if err != nil {
-		log.Fatalln("[ClassRepository][ResourceDB][addClass] problem query to db err", err.Error())
+		log.Println("[ClassRepository][ResourceDB][addClass] problem query to db err", err.Error())
 		return resp, err
 	}
 
@@ -70,4 +70,27 @@ func (s storage) GetCasesByDay(ctx context.Context, country string, date time.Ti
 	}
 
 	return
+
+}
+
+func (s storage) GetCasesByMonth(ctx context.Context, country string, startDate string, endDate string) (CasesSummary, error) {
+	//create query for month
+
+	var resp CasesSummary
+
+	//prepare query
+	qr, err := s.CasesDB.Prepare(filterMonthCasesQuery)
+	if err != nil {
+		log.Println("[Prepare][ResourceDB][GetCasesByMonth] prepare failed err, ", err.Error())
+		return CasesSummary{}, err
+	}
+
+	err = qr.QueryRow(country, startDate, endDate).Scan(&resp.Confirmed, &resp.Deaths, &resp.Recovered, &resp.Active)
+	if err != nil {
+		log.Println("[QueryRow][ResourceDB][GetCasesByMonth] Query row failed err, ", err.Error())
+		return CasesSummary{}, err
+	}
+
+	return resp, nil
+
 }

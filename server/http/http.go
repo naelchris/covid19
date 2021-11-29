@@ -19,6 +19,7 @@ func ConfigureMuxRouter() *mux.Router {
 	router.HandleFunc("/covid", covid.AddCovidCases).Methods("POST")
 	router.HandleFunc("/covid/days", covid.GetCasesByDay).Methods("GET")
 	router.HandleFunc("/covid/increment", covid.GetCaseIncrement).Methods("GET")
+	router.HandleFunc("/covid/months", covid.MonthlyCasesQueryHTTP).Methods("GET")
 
 	return router
 }

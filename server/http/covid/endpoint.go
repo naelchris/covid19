@@ -22,7 +22,7 @@ func AddCovidCases(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		log.Println("[classHandler][AddClassHandler][jsonNewDocoder] decode error err, ", err)
+		log.Println("[cassesHandler][AddCovidCases][jsonNewDocoder] decode error err, ", err)
 		server.RenderError(w, http.StatusInternalServerError, err, timeStart)
 		return
 	}
@@ -30,13 +30,44 @@ func AddCovidCases(w http.ResponseWriter, r *http.Request) {
 	//TODO : Usecase Covid
 	res, err := server.CovidUsecase.AddCases(ctx, data)
 	if err != nil {
-		log.Println("[classHandler][AddClassHandler] unable to read body err :", err)
+		log.Println("[cassesHandler][AddCovidCases] unable to read body err :", err)
 		server.RenderError(w, http.StatusBadRequest, err, timeStart)
 		return
 	}
 
 	server.RenderResponse(w, http.StatusCreated, res, timeStart)
+}
 
+func MonthlyCasesQueryHTTP(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
+
+	var (
+		ctx = r.Context()
+	)
+
+	//get data from params
+	country := r.FormValue("country")
+	yearStr := r.FormValue("year")
+	monthStr := r.FormValue("start_month")
+	monthRangeStr := r.FormValue("month_range")
+
+	//convert string to int
+	year, errYear := strconv.Atoi(yearStr)
+	month, errMonth := strconv.Atoi(monthStr)
+	monthRange, errMonthRange := strconv.Atoi(monthRangeStr)
+
+	if errYear != nil || errMonth != nil || errMonthRange != nil {
+		server.RenderError(w, http.StatusBadRequest, errors.New("invalid params"), timeStart)
+		return
+	}
+
+	res, err := server.CovidUsecase.MonthlyCasesQuery(ctx, country, year, month, monthRange)
+	if err != nil {
+		log.Println("[casesHandler][MonthlyCasesQuery] err,", err)
+		return
+	}
+
+	server.RenderResponse(w, http.StatusOK, res, timeStart)
 }
 
 func GetCasesByDay(w http.ResponseWriter, r *http.Request) {

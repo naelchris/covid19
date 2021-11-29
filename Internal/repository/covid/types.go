@@ -10,7 +10,7 @@ import (
 )
 
 type Cases struct {
-	ID          int64     `json:"case_ID,omitempty" db:"id"`
+	ID          int64     `json:"id, omitempty" db:"id"`
 	Country     string    `json:"country, omitempty" db:"country"`
 	CountryCode string    `json:"country_code, omitempty" db:"countrycode"`
 	Province    string    `json:"province, omitempty" db:"province"`
@@ -19,7 +19,7 @@ type Cases struct {
 	Lat         string    `json:"lat, omitempty" db:"lat"`
 	Lon         string    `json:"lon, omitempty" db:"lon"`
 	Confirmed   int64     `json:"confirmed, omitempty" db:"confirmed"`
-	Deaths      int64     `json:"death, omitempty" db:"death"`
+	Deaths      int64     `json:"deaths, omitempty" db:"deaths"`
 	Recovered   int64     `json:"recovered, omitempty" db:"recovered"`
 	Active      int64     `json:"active, omitempty" db:"active"`
 	Date        time.Time `json:"date, omitempty" db:"date"`

@@ -51,7 +51,9 @@ const (
 			$10,
 			$11,
 			$12
-		) returning *
+		) on CONFLICT (date, country) DO UPDATE
+		SET confirmed = $8, deaths = $9, recovered = $10,  active = $11
+		RETURNING *
 	`
 
 	updateCaseQuery = `
@@ -78,5 +80,18 @@ const (
 			date BETWEEN $2 AND $3
 		ORDER BY
 			date ASC
+		`
+	filterMonthCasesQuery = `
+		SELECT 
+			COALESCE(SUM(confirmed), 0) as confirmed, 
+			COALESCE(SUM(deaths), 0) as deaths, 
+			COALESCE(SUM(recovered), 0) as recovered,
+			COALESCE(SUM(active), 0) as active
+		FROM 
+			covid19_data 
+		WHERE 
+			country = $1 
+				AND 
+			"date" between $2 and $3
 	`
 )
