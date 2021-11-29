@@ -3,6 +3,7 @@ package covid
 import (
 	"context"
 	"log"
+	"time"
 
 	covid "github.com/naelchris/covid19/Internal/repository/covid"
 )
@@ -17,7 +18,8 @@ func NewCovidUsecase(covidDomain covid.DomainItf) *CovidUsecase {
 	}
 }
 
-func (uc *CovidUsecase) AddCases(ctx context.Context, casesData covid.InsertCasesRequest) (covid.CasesResponse, error) {
+func (uc *CovidUsecase) AddCases(ctx context.Context, casesData covid.Cases) (covid.Cases, error) {
+	casesData.Date = time.Now()
 	resp, err := uc.covidDomain.AddCases(ctx, casesData)
 	if err != nil {
 		log.Println("[CasesUsecase][AddCases] failt to create cases err", err)

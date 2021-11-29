@@ -5,9 +5,9 @@ import (
 	"log"
 )
 
-func (s storage) AddCases(ctx context.Context, data InsertCasesRequest) (CasesResponse, error) {
-	var resp CasesResponse
-	var id int64
+func (s storage) AddCases(ctx context.Context, data Cases) (Cases, error) {
+	var resp Cases
+	//	var id int64
 
 	log.Println("[ClassRepository][ResourceDB][addClass] Data Class,", data)
 
@@ -22,20 +22,20 @@ func (s storage) AddCases(ctx context.Context, data InsertCasesRequest) (CasesRe
 		data.Country,
 		data.CountryCode,
 		data.Province,
+		data.City,
+		data.CityCode,
 		data.Lat,
 		data.Lon,
 		data.Confirmed,
 		data.Deaths,
 		data.Recovered,
 		data.Active,
-	).Scan(&id)
+		data.Date,
+	).Scan(&resp.ID, &resp.Country, &resp.CountryCode, &resp.Province, &resp.City, &resp.CityCode,
+		&resp.Lat, &resp.Lon, &resp.Confirmed, &resp.Deaths, &resp.Recovered, &resp.Active, &resp.Date)
 	if err != nil {
 		log.Fatalln("[ClassRepository][ResourceDB][addClass] problem query to db err", err.Error())
 		return resp, err
-	}
-
-	resp = CasesResponse{
-		ID: id,
 	}
 
 	return resp, nil

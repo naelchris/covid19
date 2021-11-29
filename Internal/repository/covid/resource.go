@@ -7,11 +7,11 @@ import (
 )
 
 type DomainItf interface {
-	AddCases(ctx context.Context, data InsertCasesRequest) (CasesResponse, error)
+	AddCases(ctx context.Context, data Cases) (Cases, error)
 }
 
 type DBResourceItf interface {
-	AddCases(ctx context.Context, data InsertCasesRequest) (CasesResponse, error)
+	AddCases(ctx context.Context, data Cases) (Cases, error)
 }
 
 type Domain struct {
@@ -21,12 +21,12 @@ type Domain struct {
 func InitDomain(db *sql.DB) Domain {
 	return Domain{
 		Storage: storage{
-			ClassDB: db,
+			CasesDB: db,
 		},
 	}
 }
 
-func (d Domain) AddClass(ctx context.Context, data InsertCasesRequest) (CasesResponse, error) {
+func (d Domain) AddCases(ctx context.Context, data Cases) (Cases, error) {
 	resp, err := d.Storage.AddCases(ctx, data)
 	if err != nil {
 		log.Println("[ClassUsecase][AddClass] problem when querying to database, err :", err)

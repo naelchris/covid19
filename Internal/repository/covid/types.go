@@ -6,45 +6,26 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 )
 
-type CasesResponse struct {
-	ID          int64  `json:"case_ID,omitempty" db:"id"`
-	Country     string `json:"country, omitempty" db:"country"`
-	CountryCode string `json:"country_code, omitempty" db:"countr_code"`
-	Province    string `json:"province, omitempty" db:"province"`
-	City        string `json:"city, omitempty" db:"city"`
-	CityCode    string `json:"city_code, omitempty" db:"city_code"`
-	Lat         string `json:"lat, omitempty" db:"lat"`
-	Lon         string `json:"lon, omitempty" db:"lon"`
-	Confirmed   int64  `json:"confirmed, omitempty" db:"confirmed"`
-	Deaths      int64  `json:"death, omitempty" db:"death"`
-	Recovered   int64  `json:"recovered, omitempty" db:"recovered"`
-	Active      int64  `json:"active, omitempty" db:"active"`
+type Cases struct {
+	ID          int64     `json:"case_ID,omitempty" db:"id"`
+	Country     string    `json:"country, omitempty" db:"country"`
+	CountryCode string    `json:"country_code, omitempty" db:"countrycode"`
+	Province    string    `json:"province, omitempty" db:"province"`
+	City        string    `json:"city, omitempty" db:"city"`
+	CityCode    string    `json:"city_code, omitempty" db:"city_code"`
+	Lat         string    `json:"lat, omitempty" db:"lat"`
+	Lon         string    `json:"lon, omitempty" db:"lon"`
+	Confirmed   int64     `json:"confirmed, omitempty" db:"confirmed"`
+	Deaths      int64     `json:"death, omitempty" db:"death"`
+	Recovered   int64     `json:"recovered, omitempty" db:"recovered"`
+	Active      int64     `json:"active, omitempty" db:"active"`
+	Date        time.Time `json:"date, omitempty" db:"date"`
 }
 
-type InsertCasesRequest struct {
-	Country     string `json:"country, omitempty" db:"country"`
-	CountryCode string `json:"country_code, omitempty" db:"countr_code"`
-	Province    string `json:"province, omitempty" db:"province"`
-	Lat         string `json:"lat, omitempty" db:"lat"`
-	Lon         string `json:"lon, omitempty" db:"lon"`
-	Confirmed   int64  `json:"confirmed, omitempty" db:"confirmed"`
-	Deaths      int64  `json:"death, omitempty" db:"death"`
-	Recovered   int64  `json:"recovered, omitempty" db:"recovered"`
-	Active      int64  `json:"active, omitempty" db:"active"`
-}
-
-type UpdateCasesRequest struct {
-	Country   string `json:"country, omitempty" db:"country"`
-	Province  string `json:"province, omitempty" db:"province"`
-	Confirmed int64  `json:"confirmed, omitempty" db:"confirmed"`
-	Deaths    int64  `json:"death, omitempty" db:"death"`
-	Recovered int64  `json:"recovered, omitempty" db:"recovered"`
-	Active    int64  `json:"active, omitempty" db:"active"`
-}
-
-func (u UpdateCasesRequest) BuildQuery(id int64) (string, []interface{}) {
+func (u Cases) BuildQuery(id int64) (string, []interface{}) {
 	var fieldQuery string
 	fieldValues := make([]interface{}, 0)
 
