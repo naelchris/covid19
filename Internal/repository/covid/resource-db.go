@@ -2,7 +2,9 @@ package covid
 
 import (
 	"context"
+	"database/sql"
 	"log"
+	"time"
 )
 
 func (s storage) AddCases(ctx context.Context, data Cases) (Cases, error) {
@@ -39,4 +41,33 @@ func (s storage) AddCases(ctx context.Context, data Cases) (Cases, error) {
 	}
 
 	return resp, nil
+}
+
+func (s storage) GetCasesByDay(ctx context.Context, country string, date time.Time, dateRange int) (resp []Cases, err error) {
+	log.Println("[ClassRepository][ResourceDB][GetCasesByDay] Date: ", date, ", DateRange: ", dateRange)
+
+	fromDate := date.Format("2006-01-02")
+	toDate := date.AddDate(0, 0, dateRange).Format("2006-01-02")
+
+	//get cases row
+	rows, err := s.CasesDB.Query(getCasesByDay, country, fromDate, toDate)
+	if err != nil && err != sql.ErrNoRows {
+		log.Println("[ClassRepository][ResourceDB][GetCasesByDay] problem query to db err", err.Error())
+		return
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var respRow Cases
+
+		err = rows.Scan(&respRow.Confirmed, &respRow.Deaths, &respRow.Recovered, &respRow.Active, &respRow.Date)
+		if err != nil {
+			return
+		}
+
+		resp = append(resp, respRow)
+	}
+
+	return
 }

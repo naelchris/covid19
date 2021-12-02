@@ -25,6 +25,18 @@ type Cases struct {
 	Date        time.Time `json:"date, omitempty" db:"date"`
 }
 
+type CasesSummary struct {
+	Confirmed         int64     `json:"confirmed, omitempty" db:"confirmed"`
+	Deaths            int64     `json:"deaths, omitempty" db:"deaths"`
+	Recovered         int64     `json:"recovered, omitempty" db:"recovered"`
+	Active            int64     `json:"active, omitempty" db:"active"`
+	IncreaseConfirmed int64     `json:"increase_confirmed, omitempty"`
+	IncreaseDeaths    int64     `json:"increase_deaths, omitempty"`
+	IncreaseRecovered int64     `json:"increase_recovered, omitempty"`
+	IncreaseActive    int64     `json:"increase_active, omitempty"`
+	Date              time.Time `json:"date, omitempty" db:"date"`
+}
+
 func (u Cases) BuildQuery(id int64) (string, []interface{}) {
 	var fieldQuery string
 	fieldValues := make([]interface{}, 0)

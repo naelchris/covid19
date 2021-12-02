@@ -6,18 +6,17 @@ import (
 	"time"
 )
 
-type headerData struct{
-	ProcessTime int64 `json:"process_time"`
+type headerData struct {
+	ProcessTime  int64  `json:"process_time"`
 	ErrorMessage string `json:"error_message, omitempty"`
-
 }
 
 type response struct {
-	Header headerData `json:"header"`
-	Data interface{} `json:"data"`
+	Header headerData  `json:"header"`
+	Data   interface{} `json:"data"`
 }
 
-func RenderResponse(w http.ResponseWriter, statusCode int, data interface{}, startTime time.Time){
+func RenderResponse(w http.ResponseWriter, statusCode int, data interface{}, startTime time.Time) {
 	resp := response{
 		Header: headerData{
 			ProcessTime: time.Since(startTime).Milliseconds(),
@@ -31,10 +30,10 @@ func RenderResponse(w http.ResponseWriter, statusCode int, data interface{}, sta
 	return
 }
 
-func RenderError(w http.ResponseWriter, statusCode int, err error, startTime time.Time){
+func RenderError(w http.ResponseWriter, statusCode int, err error, startTime time.Time) {
 	resp := response{
 		Header: headerData{
-			ProcessTime: time.Since(startTime).Milliseconds(),
+			ProcessTime:  time.Since(startTime).Milliseconds(),
 			ErrorMessage: err.Error(),
 		},
 	}
