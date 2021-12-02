@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/naelchris/covid19/server/http/covid"
+	"github.com/naelchris/covid19/server/http/user"
 )
 
 func ConfigureMuxRouter() *mux.Router {
@@ -17,9 +18,11 @@ func ConfigureMuxRouter() *mux.Router {
 	//ROUTE
 	//router.HandleFunc("/class", class.AddClassHandler).Methods("POST")
 	router.HandleFunc("/covid", covid.AddCovidCases).Methods("POST")
+	router.HandleFunc("/user", user.AddUser).Methods("POST")
 	router.HandleFunc("/covid/days", covid.GetCasesByDay).Methods("GET")
 	router.HandleFunc("/covid/increment", covid.GetCaseIncrement).Methods("GET")
 	router.HandleFunc("/covid/months", covid.MonthlyCasesQueryHTTP).Methods("GET")
+	router.HandleFunc("/user", user.GetUser).Methods("GET")
 
 	return router
 }
