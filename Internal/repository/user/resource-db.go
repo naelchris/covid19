@@ -58,3 +58,32 @@ func (s storage) GetUser(ctx context.Context, email string, password string) (re
 
 	return
 }
+
+func (s storage) getUserByEmail(ctx context.Context, email string) (User, error) {
+	var (
+		userData User
+	)
+
+	qr, err := s.ClassDB.Prepare(getUserByEmailQuery)
+	if err != nil {
+		log.Println("[UserRepository][ResourceDB][GetUserByEmail] prepare failed err, ", err.Error())
+		return User{}, err
+	}
+
+	err = qr.QueryRow(email).Scan(
+		&userData.UserID,
+		&userData.Username,
+		&userData.Email,
+		&userData.Name,
+		&userData.Password,
+		&userData.Photo,
+		&userData.RegisteredDate,
+		&userData.UpdatedDate,
+	)
+	if err != nil {
+		log.Println("[UserRepository][ResourceDB][GetUserByEmail] QueryRow failed err, ", err.Error())
+		return User{}, err
+	}
+
+	return userData, nil
+}

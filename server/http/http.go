@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/naelchris/covid19/server/http/auth"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,9 +12,12 @@ import (
 func ConfigureMuxRouter() *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+	//ROUTE
+	getR := router.Methods(http.MethodGet).Subrouter()
+	getR.HandleFunc("/greet", func(rw http.ResponseWriter, r *http.Request) {
 		rw.Write([]byte("hello Backend"))
-	}).Methods("GET")
+	})
+	getR.Use(auth.MiddlewareValidateUserToken)
 
 	//ROUTE
 	//router.HandleFunc("/class", class.AddClassHandler).Methods("POST")
@@ -23,6 +27,12 @@ func ConfigureMuxRouter() *mux.Router {
 	router.HandleFunc("/covid/increment", covid.GetCaseIncrement).Methods("GET")
 	router.HandleFunc("/covid/months", covid.MonthlyCasesQueryHTTP).Methods("GET")
 	router.HandleFunc("/user", user.GetUser).Methods("GET")
+
+	authR := router.Methods(http.MethodPost).Subrouter()
+	authR.HandleFunc("/login", auth.LoginHandler)
+
+	postR := router.Methods(http.MethodPost).Subrouter()
+	postR.HandleFunc("/covid", covid.AddCovidCases)
 
 	return router
 }

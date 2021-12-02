@@ -34,4 +34,7 @@ const (
 			password = $2
 		LIMIT 1
 	`
+	getUserByEmailQuery = `
+		SELECT * FROM user WHERE email = $1
+	`
 )

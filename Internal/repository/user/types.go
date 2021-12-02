@@ -19,3 +19,15 @@ type User struct {
 type storage struct {
 	CasesDB *sql.DB
 }
+
+type UserInfo struct {
+	UserID         int64     `json:"user_id"`
+	Username       string    `json:"username"`
+	Email          string    `json:"email"`
+	Name           string    `json:"name"`
+}
+
+type UserResponse struct {
+	UserID int64
+}
+
