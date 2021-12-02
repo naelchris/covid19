@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,7 +15,9 @@ import (
 	"github.com/lib/pq"
 	"github.com/naelchris/covid19/Internal/config"
 	coviddomain "github.com/naelchris/covid19/Internal/repository/covid"
+	fetcherdomain "github.com/naelchris/covid19/Internal/repository/fetcher"
 	covidusecase "github.com/naelchris/covid19/Internal/usecase/covid"
+	"github.com/robfig/cron/v3"
 )
 
 type ServerConfig struct {
@@ -29,7 +32,8 @@ var (
 
 var (
 	//domain
-	CovidDomain coviddomain.Domain
+	CovidDomain   coviddomain.Domain
+	FetcherDomain fetcherdomain.Domain
 
 	//usecase
 	CovidUsecase *covidusecase.CovidUsecase
@@ -61,12 +65,29 @@ func InitServer() {
 
 	//init domain
 	CovidDomain = coviddomain.InitDomain(db)
+	FetcherDomain = fetcherdomain.InitDomain()
 
 	//init usecase
-	CovidUsecase = covidusecase.NewCovidUsecase(CovidDomain)
+	CovidUsecase = covidusecase.NewCovidUsecase(CovidDomain, FetcherDomain)
+
 }
 
-func Server(cfg ServerConfig, router *mux.Router) {
+func InitCron() *cron.Cron {
+	jakartaTime, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Println("err get time")
+	}
+
+	//init Cron
+	c := cron.New(cron.WithLocation(jakartaTime))
+
+	//Cron Scheduler
+	c.AddFunc("59 14 * * *", UpsertCasesDataCron)
+
+	return c
+}
+
+func Server(cfg ServerConfig, router *mux.Router, cron *cron.Cron) {
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         cfg.Port,
@@ -83,6 +104,13 @@ func Server(cfg ServerConfig, router *mux.Router) {
 
 	log.Println("[Server] HTTP server is running at port ", cfg.Port)
 
+	go cron.Start()
+	defer func() {
+		cron.Stop()
+		log.Println("[Server] Cron Finish ====")
+	}()
+	log.Println("[Server] Cron initialize ====")
+
 	s := make(chan os.Signal, 1)
 
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -91,4 +119,10 @@ func Server(cfg ServerConfig, router *mux.Router) {
 	if err := srv.Shutdown(context.Background()); err != nil {
 		log.Println("[Server] error on shutting down HTTP Server, err: ", err.Error())
 	}
+}
+
+func UpsertCasesDataCron() {
+	fmt.Println("Upsert Cases Data === Start")
+	CovidUsecase.UpsertCasesData(context.Background())
+	fmt.Println("Upsert Cases Data === Finish")
 }

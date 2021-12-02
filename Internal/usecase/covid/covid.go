@@ -7,20 +7,23 @@ import (
 	"time"
 
 	covid "github.com/naelchris/covid19/Internal/repository/covid"
+	"github.com/naelchris/covid19/Internal/repository/fetcher"
 )
 
 type CovidUsecase struct {
-	covidDomain covid.DomainItf
+	covidDomain   covid.DomainItf
+	fetcherDomain fetcher.DomainItf
 }
 
-func NewCovidUsecase(covidDomain covid.DomainItf) *CovidUsecase {
+func NewCovidUsecase(covidDomain covid.DomainItf, fetcherDomain fetcher.DomainItf) *CovidUsecase {
 	return &CovidUsecase{
-		covidDomain: covidDomain,
+		covidDomain:   covidDomain,
+		fetcherDomain: fetcherDomain,
 	}
 }
 
 func (uc *CovidUsecase) AddCases(ctx context.Context, casesData covid.Cases) (covid.Cases, error) {
-	casesData.Date = time.Now()
+
 	resp, err := uc.covidDomain.AddCases(ctx, casesData)
 	if err != nil {
 		log.Println("[CasesUsecase][AddCases] fail to create cases err:", err)
@@ -95,4 +98,46 @@ func (uc *CovidUsecase) GetCaseIncrement(ctx context.Context, country string, ye
 	}
 
 	return
+}
+func (uc *CovidUsecase) UpsertCasesData(ctx context.Context) {
+	//TODO : get all covid cases data indonesia
+	cases := uc.fetcherDomain.QueryRequestData(ctx)
+
+	//set the status
+	countFail := 0
+	var idUpserted []int64
+
+	//TODO : loop all the cases[]
+	for _, c := range cases {
+		resp, err := uc.covidDomain.AddCases(ctx, c)
+		if err != nil {
+			log.Println("[CasesUsecase][UpsertCasesData] fail upserting data", err, c)
+			countFail += 1
+			continue
+		}
+		idUpserted = append(idUpserted, resp.ID)
+	}
+
+	//set the status finish
+
+	log.Println("[CasesUsecase][UpsertCasesData][INFO] Fail : ", countFail, " id: ", idUpserted)
+
+}
+
+func (uc *CovidUsecase) MonthlyCasesQuery(ctx context.Context, country string, year int, startMonth int, monthRange int) ([]covid.CasesSummary, error) {
+	covidData, err := uc.covidDomain.GetCasesByMonths(ctx, country, year, startMonth, monthRange)
+	if err != nil {
+		log.Println("[GetCasesByMonth Usecase][MonthlyCasesQuery] err, ", err)
+		return []covid.CasesSummary{}, err
+	}
+
+	//calculate increase
+	for i := 0; i < len(covidData)-1; i++ {
+		covidData[i+1].IncreaseConfirmed = covidData[i+1].Confirmed - covidData[i].Confirmed
+		covidData[i+1].IncreaseDeaths = covidData[i+1].Deaths - covidData[i].Deaths
+		covidData[i+1].IncreaseRecovered = covidData[i+1].Recovered - covidData[i].Recovered
+		covidData[i+1].IncreaseActive = covidData[i+1].Active - covidData[i].Active
+	}
+
+	return covidData[1:], nil
 }

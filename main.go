@@ -1,19 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
+	"github.com/naelchris/covid19/Internal/common/util"
 	"github.com/naelchris/covid19/server"
 	http "github.com/naelchris/covid19/server/http"
-	cron "github.com/robfig/cron/v3"
 )
 
 func main() {
+	util.InsertIntoCloudStorage()
 	server.InitServer()
 
 	router := http.ConfigureMuxRouter()
@@ -28,7 +26,9 @@ func main() {
 		Port:         GetPort(),
 	}
 
-	server.Server(serverConfig, router)
+	c := server.InitCron()
+
+	server.Server(serverConfig, router, c)
 }
 
 //func homeRoute(res http.ResponseWriter, req *http.Request) {
@@ -43,25 +43,4 @@ func GetPort() string {
 	}
 
 	return ":" + port
-}
-
-func initCron() {
-	//jakarta time
-	jakartaTime, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		log.Println("err get time")
-	}
-
-	//init Cron
-	c := cron.New(cron.WithLocation(jakartaTime))
-	defer c.Stop()
-
-	c.AddFunc("* * * * *", func() { fmt.Println("testing") })
-
-	go c.Start()
-
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-
-	<-sig
 }
