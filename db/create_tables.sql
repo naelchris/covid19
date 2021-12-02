@@ -13,3 +13,14 @@ CREATE TABLE IF NOT EXISTS covid19_data(
     Active          BIGINT NOT NULL,
     Date            TIMESTAMPTZ
 );
+
+CREATE TABLE IF NOT EXISTS user_data(
+    ID              bigserial,
+    Name            VARCHAR(255) NOT NULL,
+    Email           VARCHAR(255) PRIMARY KEY NOT NULL,
+    Password        VARCHAR(255) NOT NULL,
+    DateOfBirth     TIMESTAMPTZ NOT NULL,
+    VaccineType     VARCHAR(255),
+    CreatedAt       TIMESTAMPTZ NOT NULL,
+    UpdatedAt       TIMESTAMPTZ
+);
