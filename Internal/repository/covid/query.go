@@ -62,4 +62,21 @@ const (
 		WHERE
 			id=%d
 	`
+
+	getCasesByDay = `
+		SELECT 
+			confirmed,
+			deaths,
+			recovered,
+			active,
+			date
+		FROM
+			covid19_data
+		WHERE 
+			country = $1
+		AND	
+			date BETWEEN $2 AND $3
+		ORDER BY
+			date ASC
+	`
 )
