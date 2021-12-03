@@ -9,11 +9,13 @@ import (
 )
 
 type DomainItf interface {
-	QueryRequestData(ctx context.Context) []covid.Cases
+	QueryRequestAllData(ctx context.Context, country string) []covid.Cases
+	QueryRequestDailyData(ctx context.Context, country string) []covid.Cases
 }
 
 type ResourceDomainItf interface {
-	QueryRequestData(ctx context.Context) []covid.Cases
+	QueryRequestAllData(ctx context.Context, country string) []covid.Cases
+	QueryRequestDailyData(ctx context.Context, country string) []covid.Cases
 }
 
 type Domain struct {
@@ -30,7 +32,12 @@ func InitDomain() Domain {
 	}
 }
 
-func (d Domain) QueryRequestData(ctx context.Context) []covid.Cases {
-	cases := d.HttpDomain.QueryRequestData(ctx)
+func (d Domain) QueryRequestAllData(ctx context.Context, country string) []covid.Cases {
+	cases := d.HttpDomain.QueryRequestAllData(ctx, country)
+	return cases
+}
+
+func (d Domain) QueryRequestDailyData(ctx context.Context, country string) []covid.Cases {
+	cases := d.HttpDomain.QueryRequestDailyData(ctx, country)
 	return cases
 }

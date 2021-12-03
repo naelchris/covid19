@@ -10,7 +10,7 @@ import (
 )
 
 type Cases struct {
-	ID          int64     `json:"id, omitempty" db:"id"`
+	ID          int64     `json:"case_id, omitempty" db:"id"`
 	Country     string    `json:"country, omitempty" db:"country"`
 	CountryCode string    `json:"country_code, omitempty" db:"countrycode"`
 	Province    string    `json:"province, omitempty" db:"province"`
@@ -35,6 +35,7 @@ type CasesSummary struct {
 	IncreaseRecovered int64     `json:"increase_recovered, omitempty"`
 	IncreaseActive    int64     `json:"increase_active, omitempty"`
 	Date              time.Time `json:"date, omitempty" db:"date"`
+	DateLabel         string    `json:"date_label"`
 }
 
 func (u Cases) BuildQuery(id int64) (string, []interface{}) {

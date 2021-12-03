@@ -3,6 +3,7 @@ package covid
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -61,6 +62,7 @@ func (uc *CovidUsecase) GetCasesByDay(ctx context.Context, country string, year 
 			IncreaseRecovered: caseData[i].Recovered - caseData[i-1].Recovered,
 			IncreaseActive:    caseData[i].Active - caseData[i-1].Active,
 			Date:              caseData[i].Date,
+			DateLabel:         caseData[i].Date.Format("02 Jan 2006"),
 		}
 
 		resp = append(resp, summary)
@@ -99,19 +101,57 @@ func (uc *CovidUsecase) GetCaseIncrement(ctx context.Context, country string, ye
 
 	return
 }
-func (uc *CovidUsecase) UpsertCasesData(ctx context.Context) {
-	//TODO : get all covid cases data indonesia
-	cases := uc.fetcherDomain.QueryRequestData(ctx)
+func (uc *CovidUsecase) UpsertAllCasesData(ctx context.Context, countryList []string) {
+	countFail := 0
+	countUpserted := 0
+
+	//loop through all countries
+	for _, country := range countryList {
+		fmt.Println(country)
+
+		//get cases from day one API
+		cases := uc.fetcherDomain.QueryRequestAllData(ctx, country)
+
+		//set batch to add by Bulk
+		casesBulk := []covid.Cases{}
+
+		//TODO : loop all the cases[]
+		for i, c := range cases {
+			casesBulk = append(casesBulk, c)
+
+			log.Println("[CasesUsecase][UpsertAllCasesData] added to batch:", c)
+
+			if len(casesBulk) == MaxBulkBatches || i == len(cases)-1 {
+				//insert on max batches or last data
+				err := uc.covidDomain.AddCasesBulk(ctx, casesBulk)
+				if err != nil {
+					countFail += len(casesBulk)
+					log.Println("[CasesUsecase][UpsertAllCasesData] fail upserting data from:", casesBulk[0].Date, ", to:", casesBulk[len(casesBulk)-1].Date, ", err:", err)
+				} else {
+					countUpserted += len(casesBulk)
+					log.Println("[CasesUsecase][UpsertAllCasesData] success upserting data from:", casesBulk[0].Date, ", to:", casesBulk[len(casesBulk)-1].Date)
+				}
+				//empty cases batch
+				casesBulk = []covid.Cases{}
+			}
+		}
+
+	}
+
+	log.Println("[CasesUsecase][UpsertCasesData][INFO] Fail : ", countFail)
+}
+
+func (uc *CovidUsecase) UpsertDailyCasesData(ctx context.Context, country string) {
+	cases := uc.fetcherDomain.QueryRequestDailyData(ctx, country)
 
 	//set the status
 	countFail := 0
 	var idUpserted []int64
 
-	//TODO : loop all the cases[]
 	for _, c := range cases {
 		resp, err := uc.covidDomain.AddCases(ctx, c)
 		if err != nil {
-			log.Println("[CasesUsecase][UpsertCasesData] fail upserting data", err, c)
+			log.Println("[CasesUsecase][UpsertDailyCasesData] fail upserting data", err, c)
 			countFail += 1
 			continue
 		}
@@ -121,7 +161,6 @@ func (uc *CovidUsecase) UpsertCasesData(ctx context.Context) {
 	//set the status finish
 
 	log.Println("[CasesUsecase][UpsertCasesData][INFO] Fail : ", countFail, " id: ", idUpserted)
-
 }
 
 func (uc *CovidUsecase) MonthlyCasesQuery(ctx context.Context, country string, year int, startMonth int, monthRange int) ([]covid.CasesSummary, error) {

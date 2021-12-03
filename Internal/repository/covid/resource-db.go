@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"log"
 	"time"
+
+	sqlbuilder "github.com/huandu/go-sqlbuilder"
+	sqlx "github.com/jmoiron/sqlx"
 )
 
 func (s storage) AddCases(ctx context.Context, data Cases) (Cases, error) {
@@ -43,8 +46,50 @@ func (s storage) AddCases(ctx context.Context, data Cases) (Cases, error) {
 	return resp, nil
 }
 
+func (s storage) AddCasesBulk(ctx context.Context, data []Cases) (err error) {
+	//build add cases bulk query
+	query, args := s.buildAddCasesBulkQuery(data)
+
+	query += ` ON CONFLICT (date, country) DO UPDATE SET confirmed = EXCLUDED.confirmed, deaths = EXCLUDED.deaths, recovered = EXCLUDED.recovered,  active = EXCLUDED.active`
+
+	//bind type postgres -> 2
+	_, err = s.CasesDB.Exec(sqlx.Rebind(2, query), args...)
+	if err != nil {
+		log.Println("[ClassRepository][ResourceDB][addClassBulk] problem query to db err", err.Error())
+		return err
+	}
+
+	return
+}
+
+func (s storage) buildAddCasesBulkQuery(data []Cases) (string, []interface{}) {
+	insertBuilder := sqlbuilder.NewInsertBuilder()
+
+	insertBuilder.InsertInto("covid19_data")
+	insertBuilder.Cols(addCaseColumn)
+
+	for _, rows := range data {
+		insertBuilder.Values(
+			rows.Country,
+			rows.CountryCode,
+			rows.Province,
+			rows.City,
+			rows.CityCode,
+			rows.Lat,
+			rows.Lon,
+			rows.Confirmed,
+			rows.Deaths,
+			rows.Recovered,
+			rows.Active,
+			rows.Date,
+		)
+	}
+
+	return insertBuilder.Build()
+}
+
 func (s storage) GetCasesByDay(ctx context.Context, country string, date time.Time, dateRange int) (resp []Cases, err error) {
-	log.Println("[ClassRepository][ResourceDB][GetCasesByDay] Date: ", date, ", DateRange: ", dateRange)
+	log.Println("[ClassRepository][ResourceDB][GetCasesByDay] Country:", country, "Date:", date, ", DateRange:", dateRange)
 
 	fromDate := date.Format("2006-01-02")
 	toDate := date.AddDate(0, 0, dateRange).Format("2006-01-02")
@@ -70,7 +115,6 @@ func (s storage) GetCasesByDay(ctx context.Context, country string, date time.Ti
 	}
 
 	return
-
 }
 
 func (s storage) GetCasesByMonth(ctx context.Context, country string, startDate string, endDate string) (CasesSummary, error) {

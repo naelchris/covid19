@@ -3,7 +3,6 @@ package user
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -51,9 +50,6 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	//get data from params
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-
-	fmt.Println(email)
-	fmt.Println(password)
 
 	if email == "" || password == "" {
 		server.RenderError(w, http.StatusBadRequest, errors.New("invalid params"), timeStart)

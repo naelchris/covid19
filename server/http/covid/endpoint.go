@@ -6,11 +6,37 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/naelchris/covid19/Internal/repository/covid"
 	"github.com/naelchris/covid19/server"
 )
+
+func InitCovidCases(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
+
+	var ctx = r.Context()
+
+	country := r.FormValue("country")
+	countryList := strings.Split(country, ",")
+
+	go server.CovidUsecase.UpsertAllCasesData(ctx, countryList)
+
+	server.RenderResponse(w, http.StatusCreated, "success", timeStart)
+}
+
+func UpsertDailyCasesData(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
+
+	var ctx = r.Context()
+
+	for _, country := range covid.ListCountry {
+		go server.CovidUsecase.UpsertDailyCasesData(ctx, country)
+	}
+
+	server.RenderResponse(w, http.StatusCreated, "success", timeStart)
+}
 
 func AddCovidCases(w http.ResponseWriter, r *http.Request) {
 	timeStart := time.Now()
@@ -71,6 +97,9 @@ func MonthlyCasesQueryHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCasesByDay(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	timeStart := time.Now()
 
 	ctx := r.Context()
@@ -89,8 +118,12 @@ func GetCasesByDay(w http.ResponseWriter, r *http.Request) {
 	dateRange, errDateRange := strconv.Atoi(dateRangeStr)
 
 	if errYear != nil || errMonth != nil || errStartDate != nil || errDateRange != nil {
-		server.RenderError(w, http.StatusBadRequest, errors.New("invalid params"), timeStart)
-		return
+		startdateTime := time.Now().AddDate(0, 0, -6)
+
+		year = startdateTime.Year()
+		month = int(startdateTime.Month())
+		startdate = startdateTime.Day()
+		dateRange = 5
 	}
 
 	res, err := server.CovidUsecase.GetCasesByDay(ctx, country, year, month, startdate, dateRange)
