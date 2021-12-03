@@ -3,7 +3,6 @@ package covid
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
@@ -92,6 +91,10 @@ func (uc *CovidUsecase) GetCaseIncrement(ctx context.Context, country string, ye
 	}
 
 	summary = covid.CasesSummary{
+		Confirmed:         resp[1].Confirmed,
+		Deaths:            resp[1].Deaths,
+		Recovered:         resp[1].Recovered,
+		Active:            resp[1].Active,
 		IncreaseConfirmed: resp[1].Confirmed - resp[0].Confirmed,
 		IncreaseDeaths:    resp[1].Deaths - resp[0].Deaths,
 		IncreaseRecovered: resp[1].Recovered - resp[0].Recovered,
@@ -107,8 +110,6 @@ func (uc *CovidUsecase) UpsertAllCasesData(ctx context.Context, countryList []st
 
 	//loop through all countries
 	for _, country := range countryList {
-		fmt.Println(country)
-
 		//get cases from day one API
 		cases := uc.fetcherDomain.QueryRequestAllData(ctx, country)
 
@@ -176,6 +177,7 @@ func (uc *CovidUsecase) MonthlyCasesQuery(ctx context.Context, country string, y
 		covidData[i+1].IncreaseDeaths = covidData[i+1].Deaths - covidData[i].Deaths
 		covidData[i+1].IncreaseRecovered = covidData[i+1].Recovered - covidData[i].Recovered
 		covidData[i+1].IncreaseActive = covidData[i+1].Active - covidData[i].Active
+		covidData[i+1].DateLabel = covidData[i+1].Date.Format("Jan 2006")
 	}
 
 	return covidData[1:], nil
