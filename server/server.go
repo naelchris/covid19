@@ -87,7 +87,7 @@ func InitCron() *cron.Cron {
 	c := cron.New(cron.WithLocation(jakartaTime))
 
 	//Cron Scheduler
-	c.AddFunc("59 14 * * *", UpsertCasesDataCron)
+	// c.AddFunc("* * * * *", UpsertCasesDataCron)
 
 	return c
 }
@@ -128,6 +128,8 @@ func Server(cfg ServerConfig, router *mux.Router, cron *cron.Cron) {
 
 func UpsertCasesDataCron() {
 	fmt.Println("Upsert Cases Data === Start")
-	CovidUsecase.UpsertCasesData(context.Background())
+	for _, country := range coviddomain.ListCountry {
+		CovidUsecase.UpsertDailyCasesData(context.Background(), country)
+	}
 	fmt.Println("Upsert Cases Data === Finish")
 }

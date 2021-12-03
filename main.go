@@ -5,13 +5,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/naelchris/covid19/Internal/common/util"
 	"github.com/naelchris/covid19/server"
 	http "github.com/naelchris/covid19/server/http"
 )
 
 func main() {
-	util.InsertIntoCloudStorage()
+	// util.InsertIntoCloudStorage()
 	server.InitServer()
 
 	router := http.ConfigureMuxRouter()

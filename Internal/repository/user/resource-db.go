@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 )
@@ -42,10 +41,6 @@ func (s storage) GetUser(ctx context.Context, email string, password string) (re
 		log.Fatalln("[ClassRepository][ResourceDB][getUser] prepare failed err, ", err.Error())
 		return resp, err
 	}
-
-	fmt.Println(qr)
-	fmt.Println(email)
-	fmt.Println(password)
 
 	err = qr.QueryRow(
 		email,

@@ -10,12 +10,14 @@ import (
 
 type DomainItf interface {
 	AddCases(ctx context.Context, data Cases) (Cases, error)
+	AddCasesBulk(ctx context.Context, data []Cases) error
 	GetCasesByDay(ctx context.Context, country string, date time.Time, dateRange int) ([]Cases, error)
 	GetCasesByMonths(ctx context.Context, country string, year int, startMonth int, monthRange int) ([]CasesSummary, error)
 }
 
 type DBResourceItf interface {
 	AddCases(ctx context.Context, data Cases) (Cases, error)
+	AddCasesBulk(ctx context.Context, data []Cases) error
 	GetCasesByDay(ctx context.Context, country string, date time.Time, dateRange int) ([]Cases, error)
 	GetCasesByMonth(ctx context.Context, country string, startDate string, endDate string) (CasesSummary, error)
 }
@@ -40,6 +42,16 @@ func (d Domain) AddCases(ctx context.Context, data Cases) (Cases, error) {
 	}
 
 	return resp, nil
+}
+
+func (d Domain) AddCasesBulk(ctx context.Context, data []Cases) error {
+	err := d.Storage.AddCasesBulk(ctx, data)
+	if err != nil {
+		log.Println("[CovidDomain][AddCasesBulk] problem when querying to database, err :", err)
+		return err
+	}
+
+	return nil
 }
 
 func (d Domain) GetCasesByDay(ctx context.Context, country string, date time.Time, dateRange int) ([]Cases, error) {

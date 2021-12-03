@@ -1,5 +1,5 @@
 package covid
 
 const (
-	CountryIndonesia = "indonesia"
+	MaxBulkBatches = 500
 )

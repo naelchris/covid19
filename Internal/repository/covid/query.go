@@ -81,6 +81,7 @@ const (
 		ORDER BY
 			date ASC
 		`
+
 	filterMonthCasesQuery = `
 		SELECT 
 			COALESCE(SUM(confirmed), 0) as confirmed, 
@@ -94,4 +95,6 @@ const (
 				AND 
 			"date" between $2 and $3
 	`
+
+	addCaseColumn = `country, countrycode, province, city, citycode, lat, lon, confirmed, deaths, recovered, active, date`
 )

@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS covid19_data(
     Date            TIMESTAMPTZ
 );
 
+ALTER TABLE covid19_data ADD CONSTRAINT covid19_data_unique_date_country UNIQUE(date, country); 
+
 CREATE TABLE IF NOT EXISTS user_data(
     ID              bigserial,
     Name            VARCHAR(255) NOT NULL,
