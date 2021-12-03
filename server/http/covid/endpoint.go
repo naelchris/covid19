@@ -65,6 +65,9 @@ func AddCovidCases(w http.ResponseWriter, r *http.Request) {
 }
 
 func MonthlyCasesQueryHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	timeStart := time.Now()
 
 	var (
@@ -137,6 +140,9 @@ func GetCasesByDay(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCaseIncrement(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	timeStart := time.Now()
 
 	ctx := r.Context()
@@ -153,8 +159,11 @@ func GetCaseIncrement(w http.ResponseWriter, r *http.Request) {
 	date, errDate := strconv.Atoi(dateStr)
 
 	if errYear != nil || errMonth != nil || errDate != nil {
-		server.RenderError(w, http.StatusBadRequest, errors.New("invalid params"), timeStart)
-		return
+		startdateTime := time.Now().AddDate(0, 0, -1)
+
+		year = startdateTime.Year()
+		month = int(startdateTime.Month())
+		date = startdateTime.Day()
 	}
 
 	res, err := server.CovidUsecase.GetCaseIncrement(ctx, country, year, month, date)
