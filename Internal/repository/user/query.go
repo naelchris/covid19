@@ -8,6 +8,7 @@ const (
 			password,
 			dateofbirth,
 			vaccinetype,
+			healthstatus,
 			createdat
 		) VALUES (
 			$1,
@@ -15,8 +16,9 @@ const (
 			$3,
 			$4,
 			$5,
-			$6
-		) returning *
+			$6,
+			$7
+		) returning ID, name, email, password, dateofbirth, vaccineType, healthstatus, createdat
 	`
 
 	getUserQuery = `
@@ -26,13 +28,26 @@ const (
 			email,
 			dateofbirth,
 			vaccinetype,
+			password,
 			healthstatus
 		FROM
 			user_data
 		WHERE
 			email = $1
-		AND
-			password = $2
 		LIMIT 1
+	`
+
+	updateUserQuery = `
+		UPDATE 
+			user_data
+		SET
+			name = $1,
+			dateofbirth = $2,
+			vaccinecertificate1 = $3,
+			vaccinecertificate2 = $4,
+			healthstatus = $5
+		WHERE
+			email = $6
+		RETURNING email, name, dateofbirth, vaccinecertificate1, vaccinecertificate2, healthstatus, vaccinetype
 	`
 )

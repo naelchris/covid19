@@ -9,11 +9,13 @@ import (
 type DomainItf interface {
 	AddUser(ctx context.Context, data User) (User, error)
 	GetUser(ctx context.Context, email string, password string) (User, error)
+	UpdateUser(ctx context.Context, userInfo UserInfo) (resp UserInfo, err error)
 }
 
 type DBResourceItf interface {
 	AddUser(ctx context.Context, data User) (User, error)
 	GetUser(ctx context.Context, email string, password string) (User, error)
+	UpdateUser(ctx context.Context, userInfo UserInfo) (resp UserInfo, err error)
 }
 
 type Domain struct {
@@ -46,4 +48,13 @@ func (d Domain) GetUser(ctx context.Context, email string, password string) (res
 	}
 
 	return
+}
+
+func (d Domain) UpdateUser(ctx context.Context, userInfo UserInfo) (resp UserInfo, err error) {
+	resp, err = d.Storage.UpdateUser(ctx, userInfo)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
 }

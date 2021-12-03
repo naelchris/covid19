@@ -1,8 +1,9 @@
 package http
 
 import (
-	"github.com/naelchris/covid19/server/http/auth"
 	"net/http"
+
+	"github.com/naelchris/covid19/server/http/auth"
 
 	"github.com/gorilla/mux"
 	"github.com/naelchris/covid19/server/http/covid"
@@ -25,6 +26,16 @@ func ConfigureMuxRouter() *mux.Router {
 	authRouter.HandleFunc("/register", auth.RegisterHandler)
 	authRouter.Use(auth.MiddlewareValidateSession)
 
+	//Auth Route Patch user
+	authPatchRouter := router.Methods(http.MethodPatch).Subrouter()
+	authPatchRouter.HandleFunc("/user/{email}", user.UpdateUser)
+	authPatchRouter.Use(auth.MiddlewareValidateUserToken)
+
+	//Auth Route GET user Info
+	authGetUserInfo := router.Methods(http.MethodGet).Subrouter()
+	authGetUserInfo.HandleFunc("/user/{email}", user.GetUser)
+	authGetUserInfo.Use(auth.MiddlewareValidateUserToken)
+
 	//Covid Route
 	covidPostRouter := router.Methods(http.MethodPost).Subrouter()
 	covidPostRouter.HandleFunc("/covid", covid.AddCovidCases)
@@ -37,6 +48,8 @@ func ConfigureMuxRouter() *mux.Router {
 	covidGetRouter.HandleFunc("/covid/increment", covid.GetCaseIncrement)
 	covidGetRouter.HandleFunc("/covid/months", covid.MonthlyCasesQueryHTTP)
 	covidGetRouter.HandleFunc("/user", user.GetUser)
+
+	//router.HandleFunc("/user/{email}", user.UpdateUser).Methods("PATCH")
 
 	return router
 }

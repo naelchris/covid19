@@ -17,13 +17,15 @@ CREATE TABLE IF NOT EXISTS covid19_data(
 ALTER TABLE covid19_data ADD CONSTRAINT covid19_data_unique_date_country UNIQUE(date, country); 
 
 CREATE TABLE IF NOT EXISTS user_data(
-    ID              bigserial,
-    Name            VARCHAR(255) NOT NULL,
-    Email           VARCHAR(255) PRIMARY KEY NOT NULL,
-    Password        VARCHAR(255) NOT NULL,
-    DateOfBirth     TIMESTAMPTZ NOT NULL,
-    VaccineType     VARCHAR(255),
-    HealthStatus    VARCHAR (255),
-    CreatedAt       TIMESTAMPTZ NOT NULL,
-    UpdatedAt       TIMESTAMPTZ
+    ID                  bigserial,
+    Name                VARCHAR(255) NOT NULL,
+    Email               VARCHAR(255) PRIMARY KEY NOT NULL,
+    Password            VARCHAR(255) NOT NULL,
+    DateOfBirth         TIMESTAMPTZ NOT NULL,
+    VaccineType         VARCHAR(255),
+    VaccineCertificate1 VARCHAR(255),
+    VaccineCertificate2 VARCHAR(255),
+    HealthStatus        VARCHAR (255),
+    CreatedAt           TIMESTAMPTZ NOT NULL,
+    UpdatedAt           TIMESTAMPTZ
 );

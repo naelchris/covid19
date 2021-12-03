@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/naelchris/covid19/Internal/repository/user"
-	"github.com/naelchris/covid19/server"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/naelchris/covid19/Internal/repository/user"
+	"github.com/naelchris/covid19/server"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {

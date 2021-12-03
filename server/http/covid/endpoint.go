@@ -14,6 +14,8 @@ import (
 )
 
 func InitCovidCases(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	timeStart := time.Now()
 
 	var ctx = r.Context()
@@ -27,6 +29,8 @@ func InitCovidCases(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpsertDailyCasesData(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	timeStart := time.Now()
 
 	var ctx = r.Context()
@@ -39,6 +43,8 @@ func UpsertDailyCasesData(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddCovidCases(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	timeStart := time.Now()
 
 	var (
