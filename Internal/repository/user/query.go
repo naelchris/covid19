@@ -25,7 +25,8 @@ const (
 			name,
 			email,
 			dateofbirth,
-			vaccinetype
+			vaccinetype,
+			healthstatus
 		FROM
 			user_data
 		WHERE

@@ -45,7 +45,14 @@ func (s storage) GetUser(ctx context.Context, email string, password string) (re
 	err = qr.QueryRow(
 		email,
 		password,
-	).Scan(&resp.ID, &resp.Name, &resp.Email, &resp.DateOfBirth, &resp.VaccineType)
+	).Scan(
+		&resp.ID,
+		&resp.Name,
+		&resp.Email,
+		&resp.DateOfBirth,
+		&resp.VaccineType,
+		&resp.HealthStatus,
+	)
 	if err != nil {
 		log.Println("[ClassRepository][ResourceDB][getUser] problem query to db err", err.Error())
 		return

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/naelchris/covid19/server/http/auth"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,20 +12,30 @@ import (
 func ConfigureMuxRouter() *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+	//Greeting but needed to login first
+	getRouter := router.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		rw.Write([]byte("hello Backend"))
-	}).Methods("GET")
+	})
+	getRouter.Use(auth.MiddlewareValidateUserToken)
 
-	//ROUTE
-	//router.HandleFunc("/class", class.AddClassHandler).Methods("POST")
-	router.HandleFunc("/covid", covid.AddCovidCases).Methods("POST")
-	router.HandleFunc("/covid/init", covid.InitCovidCases).Methods("POST")
-	router.HandleFunc("/covid/daily", covid.UpsertDailyCasesData).Methods("POST")
-	router.HandleFunc("/user", user.AddUser).Methods("POST")
-	router.HandleFunc("/covid/days", covid.GetCasesByDay).Methods("GET")
-	router.HandleFunc("/covid/increment", covid.GetCaseIncrement).Methods("GET")
-	router.HandleFunc("/covid/months", covid.MonthlyCasesQueryHTTP).Methods("GET")
-	router.HandleFunc("/user", user.GetUser).Methods("GET")
+	//TODO: Need to create middleware to make sure no double login request when already login
+	//Auth Route
+	authRouter := router.Methods(http.MethodPost).Subrouter()
+	authRouter.HandleFunc("/login", auth.LoginHandler)
+
+	//Covid Route
+	covidPostRouter := router.Methods(http.MethodPost).Subrouter()
+	covidPostRouter.HandleFunc("/covid", covid.AddCovidCases)
+	covidPostRouter.HandleFunc("/covid/init", covid.InitCovidCases)
+	covidPostRouter.HandleFunc("/covid/daily", covid.UpsertDailyCasesData)
+	covidPostRouter.HandleFunc("/user", user.AddUser)
+
+	covidGetRouter := router.Methods(http.MethodGet).Subrouter()
+	covidGetRouter.HandleFunc("/covid/days", covid.GetCasesByDay)
+	covidGetRouter.HandleFunc("/covid/increment", covid.GetCaseIncrement)
+	covidGetRouter.HandleFunc("/covid/months", covid.MonthlyCasesQueryHTTP)
+	covidGetRouter.HandleFunc("/user", user.GetUser)
 
 	return router
 }

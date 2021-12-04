@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS user_data(
     Password        VARCHAR(255) NOT NULL,
     DateOfBirth     TIMESTAMPTZ NOT NULL,
     VaccineType     VARCHAR(255),
+    HealthStatus    VARCHAR (255),
     CreatedAt       TIMESTAMPTZ NOT NULL,
     UpdatedAt       TIMESTAMPTZ
 );
