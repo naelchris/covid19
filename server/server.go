@@ -19,6 +19,7 @@ import (
 	userdomain "github.com/naelchris/covid19/Internal/repository/user"
 	covidusecase "github.com/naelchris/covid19/Internal/usecase/covid"
 	userusecase "github.com/naelchris/covid19/Internal/usecase/user"
+	authusecase "github.com/naelchris/covid19/Internal/usecase/auth"
 	"github.com/robfig/cron/v3"
 )
 
@@ -41,6 +42,7 @@ var (
 	//usecase
 	CovidUsecase *covidusecase.CovidUsecase
 	UserUsecase  *userusecase.UserUsecase
+	AuthUsecase *authusecase.AuthUsecase
 )
 
 func InitServer() {
@@ -75,6 +77,7 @@ func InitServer() {
 	//init usecase
 	CovidUsecase = covidusecase.NewCovidUsecase(CovidDomain, FetcherDomain)
 	UserUsecase = userusecase.NewUserUsecase(UserDomain)
+	AuthUsecase = authusecase.NewAuthUsecase(UserDomain)
 }
 
 func InitCron() *cron.Cron {
