@@ -14,15 +14,16 @@ func ConfigureMuxRouter() *mux.Router {
 
 	//Greeting but needed to login first
 	getRouter := router.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
+	getRouter.HandleFunc("/greet", func(rw http.ResponseWriter, r *http.Request) {
 		rw.Write([]byte("hello Backend"))
 	})
 	getRouter.Use(auth.MiddlewareValidateUserToken)
 
-	//TODO: Need to create middleware to make sure no double login request when already login
 	//Auth Route
 	authRouter := router.Methods(http.MethodPost).Subrouter()
 	authRouter.HandleFunc("/login", auth.LoginHandler)
+	authRouter.HandleFunc("/register", auth.RegisterHandler)
+	authRouter.Use(auth.MiddlewareValidateSession)
 
 	//Covid Route
 	covidPostRouter := router.Methods(http.MethodPost).Subrouter()

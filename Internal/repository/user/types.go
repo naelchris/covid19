@@ -12,7 +12,7 @@ type User struct {
 	Password     string         `json:"password", db:"password"`
 	DateOfBirth  time.Time      `json:"date_of_birth", db:"dateofbirth"`
 	VaccineType  sql.NullString `json:"vaccine_type", db:"vaccinetype"`
-	HealthStatus string         `json:"health_status", db:"healthstatus"`
+	HealthStatus sql.NullString `json:"health_status", db:"healthstatus"`
 	CreatedAt    time.Time      `json:"created_at", db:"createdat"`
 	UpdatedAt    sql.NullTime   `json:"updated_at", db:"updatedat"`
 }
