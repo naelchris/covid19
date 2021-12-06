@@ -7,6 +7,8 @@ const (
 			email,
 			password,
 			dateofbirth,
+			lat,
+			lng,
 			vaccinetype,
 			healthstatus,
 			createdat
@@ -17,8 +19,10 @@ const (
 			$4,
 			$5,
 			$6,
-			$7
-		) returning ID, name, email, password, dateofbirth, vaccineType, healthstatus, createdat
+			$7,
+			$8,
+			$9
+		) returning ID, name, email, password, dateofbirth, lat, lng, vaccineType, healthstatus, createdat
 	`
 
 	getUserQuery = `
@@ -27,6 +31,28 @@ const (
 			name,
 			email,
 			dateofbirth,
+			lat,
+			lng,
+			vaccinetype,
+			password,
+			healthstatus,
+			createdat,
+			updatedat
+		FROM
+			user_data
+		WHERE
+			email = $1
+		LIMIT 1
+	`
+
+	validateLoginQuery = `
+		SELECT
+			id,
+			name,
+			email,
+			dateofbirth,
+			lat,
+			lng,
 			vaccinetype,
 			password,
 			healthstatus
@@ -34,6 +60,8 @@ const (
 			user_data
 		WHERE
 			email = $1
+		AND
+			password = $2
 		LIMIT 1
 	`
 
@@ -43,11 +71,13 @@ const (
 		SET
 			name = $1,
 			dateofbirth = $2,
-			vaccinecertificate1 = $3,
-			vaccinecertificate2 = $4,
-			healthstatus = $5
+			lat = $3,
+			lng = $4,
+			vaccinecertificate1 = $5,
+			vaccinecertificate2 = $6,
+			healthstatus = $7
 		WHERE
-			email = $6
-		RETURNING email, name, dateofbirth, vaccinecertificate1, vaccinecertificate2, healthstatus, vaccinetype
+			email = $8
+		RETURNING email, name, dateofbirth, lat, lng, vaccinecertificate1, vaccinecertificate2, healthstatus, vaccinetype
 	`
 )

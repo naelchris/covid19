@@ -6,9 +6,9 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/naelchris/covid19/Internal/repository/user"
 	"github.com/naelchris/covid19/server"
 )
@@ -53,33 +53,19 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	vars := mux.Vars(r)
+	userInfo := ctx.Value("data").(user.UserInfo)
 
-	email := vars["email"]
+	// get data from token
+	email := userInfo.Email
 
-	log.Println(email)
+	res, err := server.UserDomain.GetUser(ctx, email)
+	if err != nil {
+		log.Println("[classHandler][GetUserHandler] get case by day err :", err)
+		server.RenderError(w, http.StatusBadRequest, err, timeStart)
+		return
+	}
 
-	userInfo := ctx.Value("data")
-
-	log.Println(userInfo)
-
-	// //get data from params
-	// email := r.FormValue("email")
-	// password := r.FormValue("password")
-
-	// if email == "" || password == "" {
-	// 	server.RenderError(w, http.StatusBadRequest, errors.New("invalid params"), timeStart)
-	// 	return
-	// }
-
-	// res, err := server.UserUsecase.GetUser(ctx, email, password)
-	// if err != nil {
-	// 	log.Println("[classHandler][GetUserHandler] get case by day err :", err)
-	// 	server.RenderError(w, http.StatusBadRequest, err, timeStart)
-	// 	return
-	// }
-
-	server.RenderResponse(w, http.StatusCreated, "test", timeStart)
+	server.RenderResponse(w, http.StatusCreated, res, timeStart)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -90,11 +76,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	userInfo := ctx.Value("data").(user.UserInfo)
+
+	// get data from token
+	email := userInfo.Email
+
 	var files = make(map[string]multipart.File)
-
-	vars := mux.Vars(r)
-
-	email := vars["email"]
 
 	for _, c := range []string{"certificate_1", "certificate_2"} {
 		file, _, err := r.FormFile(c)
@@ -111,11 +98,24 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	lat, err := strconv.ParseFloat(r.FormValue("lat"), 32)
+	if err != nil {
+		server.RenderError(w, http.StatusBadRequest, errors.New("invalid params"), timeStart)
+		return
+	}
+	lng, err := strconv.ParseFloat(r.FormValue("lng"), 32)
+	if err != nil {
+		server.RenderError(w, http.StatusBadRequest, errors.New("invalid params"), timeStart)
+		return
+	}
+
 	log.Println(len(files))
 	req := user.UserInfo{
 		Email:        email,
 		Name:         r.FormValue("name"),
 		DateOfBirth:  dateOfBirth,
+		Lat:          lat,
+		Lng:          lng,
 		HealthStatus: r.FormValue("health_status"),
 	}
 

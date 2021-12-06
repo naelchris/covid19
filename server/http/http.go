@@ -28,12 +28,12 @@ func ConfigureMuxRouter() *mux.Router {
 
 	//Auth Route Patch user
 	authPatchRouter := router.Methods(http.MethodPatch).Subrouter()
-	authPatchRouter.HandleFunc("/user/{email}", user.UpdateUser)
+	authPatchRouter.HandleFunc("/user", user.UpdateUser)
 	authPatchRouter.Use(auth.MiddlewareValidateUserToken)
 
 	//Auth Route GET user Info
 	authGetUserInfo := router.Methods(http.MethodGet).Subrouter()
-	authGetUserInfo.HandleFunc("/user/{email}", user.GetUser)
+	authGetUserInfo.HandleFunc("/user", user.GetUser)
 	authGetUserInfo.Use(auth.MiddlewareValidateUserToken)
 
 	//Covid Route
@@ -47,7 +47,6 @@ func ConfigureMuxRouter() *mux.Router {
 	covidGetRouter.HandleFunc("/covid/days", covid.GetCasesByDay)
 	covidGetRouter.HandleFunc("/covid/increment", covid.GetCaseIncrement)
 	covidGetRouter.HandleFunc("/covid/months", covid.MonthlyCasesQueryHTTP)
-	covidGetRouter.HandleFunc("/user", user.GetUser)
 
 	//router.HandleFunc("/user/{email}", user.UpdateUser).Methods("PATCH")
 
