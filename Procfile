@@ -1,1 +1,1 @@
-web: bin/Covid19
+web: bin/covid19
