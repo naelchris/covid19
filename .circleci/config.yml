@@ -1,7 +1,26 @@
 version: 2.1
 orbs:
-  heroku: circleci/heroku@0.0.10
+  node: circleci/node@2.1.1
+  heroku: circleci/heroku@1.0.1
+
+jobs:
+  deploy:
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/install
+      - run: heroku config:set BUILD_NUMBER=$CIRCLE_BUILD_NUM -a application-name
+      - heroku/deploy-via-git:
+          app-name: application-name
+          force: true
+        
 workflows:
-  heroku_deploy:
+  build-test-deploy:
     jobs:
-      - heroku/deploy-via-git
+      - node/test
+      - deploy:
+          requires:
+            - node/test
+          filters:
+            branches:
+              only: master
