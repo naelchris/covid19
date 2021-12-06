@@ -2,10 +2,12 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
-	"github.com/GerardSoleCa/wordpress-hash-go"
-	"github.com/naelchris/covid19/Internal/repository/user"
+	"fmt"
 	"log"
+
+	"github.com/naelchris/covid19/Internal/repository/user"
 )
 
 type AuthUsecase struct {
@@ -19,8 +21,11 @@ func NewAuthUsecase(userDomain user.DomainItf) *AuthUsecase {
 }
 
 func (uc *AuthUsecase) Authenticate(ctx context.Context, email string, password string) (user.UserInfo, error) {
-	hash := wphash.HashPassword(password)
-	req, err := uc.userDomain.GetUser(ctx, email, hash)
+	sha := sha256.New()
+	sha.Write([]byte(password))
+
+	encryptedPassword := fmt.Sprintf("%x", sha.Sum(nil))
+	req, err := uc.userDomain.GetUser(ctx, email, encryptedPassword)
 	if err != nil {
 		log.Println("[AuthUsecase][Login] fail to get user err,", err)
 		return user.UserInfo{}, err
@@ -30,7 +35,7 @@ func (uc *AuthUsecase) Authenticate(ctx context.Context, email string, password 
 		Email:        req.Email,
 		Name:         req.Name,
 		DateOfBirth:  req.DateOfBirth,
-		HealthStatus: req.HealthStatus.String,
+		HealthStatus: req.HealthStatus,
 	}
 
 	return userInfo, nil
@@ -45,7 +50,11 @@ func (uc *AuthUsecase) Register(ctx context.Context, data user.User) (user.UserI
 		return user.UserInfo{}, err
 	}
 
-	data.Password = wphash.HashPassword(data.Password)
+	//data.Password = wphash.HashPassword(data.Password)
+	sha := sha256.New()
+	sha.Write([]byte(data.Password))
+	data.Password = fmt.Sprintf("%x", sha.Sum(nil))
+
 	log.Println(data.Password)
 	_, err = uc.userDomain.AddUser(ctx, data)
 	if err != nil {
@@ -57,7 +66,7 @@ func (uc *AuthUsecase) Register(ctx context.Context, data user.User) (user.UserI
 		Email:        data.Email,
 		Name:         data.Name,
 		DateOfBirth:  data.DateOfBirth,
-		HealthStatus: data.HealthStatus.String,
+		HealthStatus: data.HealthStatus,
 	}
 
 	return userInfo, nil
@@ -65,7 +74,7 @@ func (uc *AuthUsecase) Register(ctx context.Context, data user.User) (user.UserI
 
 //TODO: Need to add more validation
 func RegisterValidation(data user.User) error {
-	if data.Name == "" || data.Password == "" || data.Email == "" || data.DateOfBirth.IsZero() || data.CreatedAt.IsZero() {
+	if data.Name == "" || data.Password == "" || data.Email == "" || data.DateOfBirth.IsZero() {
 		return errors.New("There's field that not filled")
 	}
 

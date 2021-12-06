@@ -11,16 +11,20 @@ import (
 	"syscall"
 	"time"
 
+	"cloud.google.com/go/storage"
+	firebase "firebase.google.com/go/v4"
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
 	"github.com/naelchris/covid19/Internal/config"
 	coviddomain "github.com/naelchris/covid19/Internal/repository/covid"
 	fetcherdomain "github.com/naelchris/covid19/Internal/repository/fetcher"
+	"github.com/naelchris/covid19/Internal/repository/firestore"
 	userdomain "github.com/naelchris/covid19/Internal/repository/user"
+	authusecase "github.com/naelchris/covid19/Internal/usecase/auth"
 	covidusecase "github.com/naelchris/covid19/Internal/usecase/covid"
 	userusecase "github.com/naelchris/covid19/Internal/usecase/user"
-	authusecase "github.com/naelchris/covid19/Internal/usecase/auth"
 	"github.com/robfig/cron/v3"
+	"google.golang.org/api/option"
 )
 
 type ServerConfig struct {
@@ -35,14 +39,15 @@ var (
 
 var (
 	//domain
-	CovidDomain   coviddomain.Domain
-	UserDomain    userdomain.Domain
-	FetcherDomain fetcherdomain.Domain
+	CovidDomain     coviddomain.Domain
+	UserDomain      userdomain.Domain
+	FetcherDomain   fetcherdomain.Domain
+	FirestoreDomain firestore.Domain
 
 	//usecase
 	CovidUsecase *covidusecase.CovidUsecase
 	UserUsecase  *userusecase.UserUsecase
-	AuthUsecase *authusecase.AuthUsecase
+	AuthUsecase  *authusecase.AuthUsecase
 )
 
 func InitServer() {
@@ -67,17 +72,24 @@ func InitServer() {
 		return
 	}
 
+	//init firestore gcs
+	bucket := InitFirestoreGoogleCloudStorage()
+
 	log.Println("[InitServer][database] succesful connection")
 
 	//init domain
 	CovidDomain = coviddomain.InitDomain(db)
 	FetcherDomain = fetcherdomain.InitDomain()
 	UserDomain = userdomain.InitDomain(db)
+	FirestoreDomain = firestore.InitDomain("storage-1bb41.appspot.com", bucket)
 
 	//init usecase
 	CovidUsecase = covidusecase.NewCovidUsecase(CovidDomain, FetcherDomain)
-	UserUsecase = userusecase.NewUserUsecase(UserDomain)
+	UserUsecase = userusecase.NewUserUsecase(UserDomain, FirestoreDomain, cfg)
 	AuthUsecase = authusecase.NewAuthUsecase(UserDomain)
+
+	//firestore.GenerateV4PutObjectSignedURL("storage-1bb41.appspot.com", "naelchris@gmail", "files/storage-1bb41-firebase-adminsdk-esal9-7d4133437b.json")
+
 }
 
 func InitCron() *cron.Cron {
@@ -135,4 +147,30 @@ func UpsertCasesDataCron() {
 		CovidUsecase.UpsertDailyCasesData(context.Background(), country)
 	}
 	fmt.Println("Upsert Cases Data === Finish")
+}
+
+func InitFirestoreGoogleCloudStorage() *storage.BucketHandle {
+
+	config := &firebase.Config{
+		StorageBucket: "storage-1bb41.appspot.com",
+	}
+
+	opt := option.WithCredentialsFile("files/storage-1bb41-firebase-adminsdk-esal9-7d4133437b.json")
+	app, err := firebase.NewApp(context.Background(), config, opt)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	client, err := app.Storage(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	bucket, err := client.DefaultBucket()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Printf("Created bucket handle: %v\n", bucket)
+	return bucket
 }
