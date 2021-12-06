@@ -8,13 +8,15 @@ import (
 
 type DomainItf interface {
 	AddUser(ctx context.Context, data User) (User, error)
-	GetUser(ctx context.Context, email string, password string) (User, error)
+	GetUser(ctx context.Context, email string) (User, error)
+	ValidateLogin(ctx context.Context, email string, password string) (User, error)
 	UpdateUser(ctx context.Context, userInfo UserInfo) (resp UserInfo, err error)
 }
 
 type DBResourceItf interface {
 	AddUser(ctx context.Context, data User) (User, error)
-	GetUser(ctx context.Context, email string, password string) (User, error)
+	GetUser(ctx context.Context, email string) (User, error)
+	ValidateLogin(ctx context.Context, email string, password string) (User, error)
 	UpdateUser(ctx context.Context, userInfo UserInfo) (resp UserInfo, err error)
 }
 
@@ -40,8 +42,18 @@ func (d Domain) AddUser(ctx context.Context, data User) (resp User, err error) {
 	return
 }
 
-func (d Domain) GetUser(ctx context.Context, email string, password string) (resp User, err error) {
-	resp, err = d.Storage.GetUser(ctx, email, password)
+func (d Domain) GetUser(ctx context.Context, email string) (resp User, err error) {
+	resp, err = d.Storage.GetUser(ctx, email)
+	if err != nil {
+		log.Println("[ClassUsecase][GetUser] problem when querying to database, err :", err)
+		return
+	}
+
+	return
+}
+
+func (d Domain) ValidateLogin(ctx context.Context, email string, password string) (resp User, err error) {
+	resp, err = d.Storage.ValidateLogin(ctx, email, password)
 	if err != nil {
 		log.Println("[ClassUsecase][GetUser] problem when querying to database, err :", err)
 		return

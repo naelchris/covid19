@@ -25,7 +25,7 @@ func (uc *AuthUsecase) Authenticate(ctx context.Context, email string, password 
 	sha.Write([]byte(password))
 
 	encryptedPassword := fmt.Sprintf("%x", sha.Sum(nil))
-	req, err := uc.userDomain.GetUser(ctx, email, encryptedPassword)
+	req, err := uc.userDomain.ValidateLogin(ctx, email, encryptedPassword)
 	if err != nil {
 		log.Println("[AuthUsecase][Login] fail to get user err,", err)
 		return user.UserInfo{}, err

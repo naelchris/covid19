@@ -102,7 +102,7 @@ func InitCron() *cron.Cron {
 	c := cron.New(cron.WithLocation(jakartaTime))
 
 	//Cron Scheduler
-	// c.AddFunc("* * * * *", UpsertCasesDataCron)
+	c.AddFunc("0 0 * * *", UpsertCasesDataCron)
 
 	return c
 }

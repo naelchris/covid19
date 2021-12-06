@@ -45,21 +45,6 @@ func (uc *UserUsecase) AddUser(ctx context.Context, userData user.User) (resp us
 	return
 }
 
-func (uc *UserUsecase) GetUser(ctx context.Context, email string, password string) (resp user.User, err error) {
-	sha := sha1.New()
-	sha.Write([]byte(password))
-
-	encryptedPassword := fmt.Sprintf("%x", sha.Sum(nil))
-
-	resp, err = uc.userDomain.GetUser(ctx, email, encryptedPassword)
-	if err != nil {
-		log.Println("[UserUsecase][GetUser] fail to get user err:", err)
-		return
-	}
-
-	return
-}
-
 //Hit the google cloud storage for photo
 func (uc *UserUsecase) UpdateUser(ctx context.Context, userData user.UserInfo, files map[string]multipart.File) (resp user.UserInfo, err error) {
 
@@ -95,14 +80,17 @@ func (uc *UserUsecase) UpdateUser(ctx context.Context, userData user.UserInfo, f
 		return resp, err
 	}
 
-	resp.VaccineCertificate1, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, resp.VaccineCertificate1, uc.cfg.Conf)
-	if err != nil {
-		return resp, err
+	if resp.VaccineCertificate1 != "" {
+		resp.VaccineCertificate1, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, resp.VaccineCertificate1, uc.cfg.Conf)
+		if err != nil {
+			return resp, err
+		}
 	}
-
-	resp.VaccineCertificate2, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, resp.VaccineCertificate2, uc.cfg.Conf)
-	if err != nil {
-		return resp, err
+	if resp.VaccineCertificate2 != "" {
+		resp.VaccineCertificate2, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, resp.VaccineCertificate2, uc.cfg.Conf)
+		if err != nil {
+			return resp, err
+		}
 	}
 
 	return resp, nil

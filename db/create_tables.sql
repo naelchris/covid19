@@ -22,10 +22,12 @@ CREATE TABLE IF NOT EXISTS user_data(
     Email               VARCHAR(255) PRIMARY KEY NOT NULL,
     Password            VARCHAR(255) NOT NULL,
     DateOfBirth         TIMESTAMPTZ NOT NULL,
+    Lat                 FLOAT,
+    Lng                 FLOAT,
     VaccineType         VARCHAR(255),
     VaccineCertificate1 VARCHAR(255),
     VaccineCertificate2 VARCHAR(255),
-    HealthStatus        VARCHAR (255),
+    HealthStatus        VARCHAR(255),
     CreatedAt           TIMESTAMPTZ NOT NULL,
     UpdatedAt           TIMESTAMPTZ
 );
