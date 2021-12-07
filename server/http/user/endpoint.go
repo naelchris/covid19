@@ -98,16 +98,9 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lat, err := strconv.ParseFloat(r.FormValue("lat"), 32)
-	if err != nil {
-		server.RenderError(w, http.StatusBadRequest, errors.New("invalid params"), timeStart)
-		return
-	}
-	lng, err := strconv.ParseFloat(r.FormValue("lng"), 32)
-	if err != nil {
-		server.RenderError(w, http.StatusBadRequest, errors.New("invalid params"), timeStart)
-		return
-	}
+	// default 0.0
+	lat, _ := strconv.ParseFloat(r.FormValue("lat"), 32)
+	lng, _ := strconv.ParseFloat(r.FormValue("lng"), 32)
 
 	log.Println(len(files))
 	req := user.UserInfo{
@@ -117,6 +110,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		Lat:          lat,
 		Lng:          lng,
 		HealthStatus: r.FormValue("health_status"),
+		VaccineType:  r.FormValue("vaccine_type"),
 	}
 
 	if req.Name == "" || dateOfBirth.Year() == 1 {

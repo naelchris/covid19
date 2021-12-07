@@ -194,6 +194,8 @@ func buildUpdateUserQuery(userInfo UserInfo) (string, []interface{}) {
 
 	updateBuilder.SetMore(updateBuilder.Assign("healthstatus", userInfo.HealthStatus))
 
+	updateBuilder.SetMore(updateBuilder.Assign("vaccinetype", userInfo.VaccineType))
+
 	updateBuilder.SetMore("updatedat = CURRENT_TIMESTAMP")
 
 	updateBuilder.Where(
