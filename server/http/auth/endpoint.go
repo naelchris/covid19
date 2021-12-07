@@ -16,10 +16,6 @@ import (
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-
 	timeStart := time.Now()
 	var (
 		ctx      = r.Context()
@@ -78,10 +74,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-
 	timeStart := time.Now()
 	var (
 		ctx      = r.Context()
@@ -142,9 +134,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 func MiddlewareValidateUserToken(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
 		timeStart := time.Now()
 
 		tokenParsed, err := extractToken(r)
@@ -199,10 +188,6 @@ func extractToken(r *http.Request) (string, error) {
 
 func MiddlewareValidateSession(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-
 		timeStart := time.Now()
 
 		tokenParsed, err := extractToken(r)
