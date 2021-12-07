@@ -43,6 +43,11 @@ func (s storage) AddUser(ctx context.Context, data User) (resp User, err error) 
 func (s storage) GetUser(ctx context.Context, email string) (resp User, err error) {
 	log.Println("[ClassRepository][ResourceDB][getUser] Data Class,", email)
 
+	vaccineCertificate1 := sql.NullString{}
+	vaccineCertificate2 := sql.NullString{}
+	healthStatus := sql.NullString{}
+	vaccineType := sql.NullString{}
+
 	//prepare
 	qr, err := s.CasesDB.Prepare(getUserQuery)
 	if err != nil {
@@ -59,9 +64,11 @@ func (s storage) GetUser(ctx context.Context, email string) (resp User, err erro
 		&resp.DateOfBirth,
 		&resp.Lat,
 		&resp.Lng,
-		&resp.VaccineType,
+		&vaccineType,
+		&vaccineCertificate1,
+		&vaccineCertificate2,
 		&resp.Password,
-		&resp.HealthStatus,
+		&healthStatus,
 		&resp.CreatedAt,
 		&resp.UpdatedAt,
 	)
@@ -69,6 +76,11 @@ func (s storage) GetUser(ctx context.Context, email string) (resp User, err erro
 		log.Println("[ClassRepository][ResourceDB][getUser] problem query to db err", err.Error())
 		return
 	}
+
+	resp.VaccineCertificate1 = vaccineCertificate1.String
+	resp.VaccineCertificate2 = vaccineCertificate2.String
+	resp.HealthStatus = healthStatus.String
+	resp.VaccineType = vaccineType.String
 
 	return
 }

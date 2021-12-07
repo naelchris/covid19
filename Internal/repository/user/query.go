@@ -34,6 +34,8 @@ const (
 			lat,
 			lng,
 			vaccinetype,
+			vaccinecertificate1, 
+			vaccinecertificate2,
 			password,
 			healthstatus,
 			createdat,

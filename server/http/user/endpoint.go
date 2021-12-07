@@ -58,7 +58,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	// get data from token
 	email := userInfo.Email
 
-	res, err := server.UserDomain.GetUser(ctx, email)
+	res, err := server.UserUsecase.GetUserInfo(ctx, email)
 	if err != nil {
 		log.Println("[classHandler][GetUserHandler] get case by day err :", err)
 		server.RenderError(w, http.StatusBadRequest, err, timeStart)

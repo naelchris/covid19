@@ -105,3 +105,43 @@ func (uc *UserUsecase) UploadCertificate(ctx context.Context, fileName string, f
 
 	return url, nil
 }
+
+func (uc *UserUsecase) GetUserInfo(ctx context.Context, email string) (user.UserInfo, error) {
+
+	var (
+		userData user.User
+		userInfo user.UserInfo
+		err      error
+	)
+
+	userData, err = uc.userDomain.GetUser(ctx, email)
+	if err != nil {
+		return user.UserInfo{}, err
+	}
+
+	userInfo = user.UserInfo{
+		Email:        userData.Email,
+		Name:         userData.Name,
+		DateOfBirth:  userData.DateOfBirth,
+		Lat:          userData.Lat.Float64,
+		Lng:          userData.Lng.Float64,
+		HealthStatus: userData.HealthStatus,
+		VaccineType:  userData.VaccineType,
+	}
+
+	if userData.VaccineCertificate1 != "" {
+		userInfo.VaccineCertificate1, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, userData.VaccineCertificate1, uc.cfg.Conf)
+		if err != nil {
+			return userInfo, err
+		}
+	}
+
+	if userData.VaccineCertificate2 != "" {
+		userInfo.VaccineCertificate2, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, userData.VaccineCertificate2, uc.cfg.Conf)
+		if err != nil {
+			return userInfo, err
+		}
+	}
+
+	return userInfo, nil
+}
