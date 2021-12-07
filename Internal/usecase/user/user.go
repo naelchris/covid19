@@ -154,7 +154,7 @@ func (uc *UserUsecase) GetUserInfo(ctx context.Context, email string) (user.User
 	}
 
 	if userData.ProfilePicture != "" {
-		userData.ProfilePicture, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, userData.ProfilePicture, uc.cfg.Conf)
+		userInfo.ProfilePicture, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, userData.ProfilePicture, uc.cfg.Conf)
 		if err != nil {
 			return userInfo, err
 		}
