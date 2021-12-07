@@ -43,8 +43,9 @@ func UpsertDailyCasesData(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddCovidCases(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "*")
 	timeStart := time.Now()
 
 	var (

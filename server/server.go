@@ -24,6 +24,7 @@ import (
 	covidusecase "github.com/naelchris/covid19/Internal/usecase/covid"
 	userusecase "github.com/naelchris/covid19/Internal/usecase/user"
 	"github.com/robfig/cron/v3"
+	"github.com/rs/cors"
 	"google.golang.org/api/option"
 )
 
@@ -108,6 +109,10 @@ func InitCron() *cron.Cron {
 }
 
 func Server(cfg ServerConfig, router *mux.Router, cron *cron.Cron) {
+	// credentials := handlers.AllowCredentials()
+	// methods := handlers.AllowedMethods([]string{"*"})
+	// origins := handlers.AllowedOrigins([]string{"*"})
+	c := cors.AllowAll().Handler(router)
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         cfg.Port,
@@ -116,7 +121,7 @@ func Server(cfg ServerConfig, router *mux.Router, cron *cron.Cron) {
 	}
 
 	go func() {
-		if err := http.ListenAndServe(cfg.Port, router); err != nil {
+		if err := http.ListenAndServe(cfg.Port, c); err != nil {
 			log.Fatal("[Server] unable to listen and serve : ", err)
 		}
 
