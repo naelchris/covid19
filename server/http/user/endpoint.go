@@ -83,7 +83,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var files = make(map[string]multipart.File)
 
-	for _, c := range []string{"certificate_1", "certificate_2"} {
+	for _, c := range []string{"certificate_1", "certificate_2", "profile_picture"} {
 		file, _, err := r.FormFile(c)
 		r.ParseMultipartForm(10 << 20)
 		if err != nil {

@@ -16,6 +16,7 @@ type User struct {
 	VaccineType         string          `json:"vaccine_type", db:"vaccinetype"`
 	VaccineCertificate1 string          `json:"vaccine_certificate_1"`
 	VaccineCertificate2 string          `json:"vaccine_certificate_2"`
+	ProfilePicture      string          `json:"profile_picture"`
 	HealthStatus        string          `json:"health_status", db:"healthstatus"`
 	CreatedAt           time.Time       `json:"created_at", db:"createdat"`
 	UpdatedAt           sql.NullTime    `json:"updated_at", db:"updatedat"`
@@ -33,6 +34,7 @@ type UserInfo struct {
 	Lng                 float64   `json:"lng", db:"lng"`
 	VaccineCertificate1 string    `json:"vaccine_certificate_1"`
 	VaccineCertificate2 string    `json:"vaccine_certificate_2"`
+	ProfilePicture      string    `json:"profile_picture"`
 	HealthStatus        string    `json:"health_status"`
 	VaccineType         string    `json:"vaccine_type"`
 }

@@ -36,6 +36,7 @@ const (
 			vaccinetype,
 			vaccinecertificate1, 
 			vaccinecertificate2,
+			profilepicture,
 			password,
 			healthstatus,
 			createdat,

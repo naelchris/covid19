@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS user_data(
     VaccineCertificate1 VARCHAR(255),
     VaccineCertificate2 VARCHAR(255),
     HealthStatus        VARCHAR(255),
+    ProfilePicture      VARCHAR(255),
     CreatedAt           TIMESTAMPTZ NOT NULL,
     UpdatedAt           TIMESTAMPTZ
 );

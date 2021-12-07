@@ -47,6 +47,7 @@ func (s storage) GetUser(ctx context.Context, email string) (resp User, err erro
 	vaccineCertificate2 := sql.NullString{}
 	healthStatus := sql.NullString{}
 	vaccineType := sql.NullString{}
+	profilePicture := sql.NullString{}
 
 	//prepare
 	qr, err := s.CasesDB.Prepare(getUserQuery)
@@ -67,6 +68,7 @@ func (s storage) GetUser(ctx context.Context, email string) (resp User, err erro
 		&vaccineType,
 		&vaccineCertificate1,
 		&vaccineCertificate2,
+		&profilePicture,
 		&resp.Password,
 		&healthStatus,
 		&resp.CreatedAt,
@@ -81,6 +83,7 @@ func (s storage) GetUser(ctx context.Context, email string) (resp User, err erro
 	resp.VaccineCertificate2 = vaccineCertificate2.String
 	resp.HealthStatus = healthStatus.String
 	resp.VaccineType = vaccineType.String
+	resp.ProfilePicture = profilePicture.String
 
 	return
 }
@@ -126,10 +129,11 @@ func (s storage) UpdateUser(ctx context.Context, userInfo UserInfo) (resp UserIn
 	vaccineType := sql.NullString{}
 	lat := sql.NullFloat64{}
 	lng := sql.NullFloat64{}
+	profilePicture := sql.NullString{}
 
 	//construct query
 	sql, args := buildUpdateUserQuery(userInfo)
-	sql += " RETURNING email, name, dateofbirth, lat, lng, vaccinecertificate1, vaccinecertificate2, healthstatus, vaccinetype"
+	sql += " RETURNING email, name, dateofbirth, lat, lng, vaccinecertificate1, vaccinecertificate2, healthstatus, vaccinetype, profilepicture"
 
 	log.Println(sql)
 
@@ -143,6 +147,7 @@ func (s storage) UpdateUser(ctx context.Context, userInfo UserInfo) (resp UserIn
 		&vaccineCertificate2,
 		&healthStatus,
 		&vaccineType,
+		&profilePicture,
 	)
 	if err != nil {
 		log.Println("[UpdateUser domain][UpdateUser] Query err, ", err)
@@ -155,6 +160,7 @@ func (s storage) UpdateUser(ctx context.Context, userInfo UserInfo) (resp UserIn
 	resp.VaccineType = vaccineType.String
 	resp.Lat = lat.Float64
 	resp.Lng = lng.Float64
+	resp.ProfilePicture = profilePicture.String
 
 	return resp, nil
 }
@@ -172,6 +178,10 @@ func buildUpdateUserQuery(userInfo UserInfo) (string, []interface{}) {
 
 	if userInfo.VaccineCertificate2 != "" {
 		updateBuilder.SetMore(updateBuilder.Assign("vaccinecertificate2", userInfo.VaccineCertificate2))
+	}
+
+	if userInfo.ProfilePicture != "" {
+		updateBuilder.SetMore(updateBuilder.Assign("profilepicture", userInfo.ProfilePicture))
 	}
 
 	updateBuilder.SetMore(updateBuilder.Assign("name", userInfo.Name))

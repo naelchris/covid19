@@ -68,10 +68,13 @@ func (uc *UserUsecase) UpdateUser(ctx context.Context, userData user.UserInfo, f
 			resp.VaccineCertificate2 = fileName
 		}
 
-		log.Println(url)
+		if reflect.DeepEqual(k, "profile_picture") {
+			resp.ProfilePicture = fileName
+		}
+		log.Println("[GCS URL]", url)
 	}
 
-	log.Println(resp)
+	log.Println(fmt.Sprintf("[Update User Usecase][UpdateUser][UserData : %+v]", resp))
 
 	//update user data
 	resp, err = uc.userDomain.UpdateUser(ctx, resp)
@@ -88,6 +91,13 @@ func (uc *UserUsecase) UpdateUser(ctx context.Context, userData user.UserInfo, f
 	}
 	if resp.VaccineCertificate2 != "" {
 		resp.VaccineCertificate2, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, resp.VaccineCertificate2, uc.cfg.Conf)
+		if err != nil {
+			return resp, err
+		}
+	}
+
+	if resp.ProfilePicture != "" {
+		resp.ProfilePicture, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, resp.ProfilePicture, uc.cfg.Conf)
 		if err != nil {
 			return resp, err
 		}
@@ -138,6 +148,13 @@ func (uc *UserUsecase) GetUserInfo(ctx context.Context, email string) (user.User
 
 	if userData.VaccineCertificate2 != "" {
 		userInfo.VaccineCertificate2, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, userData.VaccineCertificate2, uc.cfg.Conf)
+		if err != nil {
+			return userInfo, err
+		}
+	}
+
+	if userData.ProfilePicture != "" {
+		userData.ProfilePicture, err = uc.fireStore.GenerateV4PutObjectSignedURL(ctx, uc.cfg.Server.BucketName, userData.ProfilePicture, uc.cfg.Conf)
 		if err != nil {
 			return userInfo, err
 		}
